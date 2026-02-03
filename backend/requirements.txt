@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+torch
+torchvision
+opencv-python
+numpy
+Pillow
+huggingface-hub
+safetensors
+moviepy
+timm
