@@ -7,6 +7,7 @@ import numpy as np
 import importlib.util
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from PIL import Image
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
@@ -73,6 +74,21 @@ transform = T.Compose([
 app = FastAPI(title="BiRefNet Video Background Removal")
 
 # =========================================================
+# CORS CONFIGURATION
+# =========================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",  # Next.js dev server
+        "http://localhost:3001",  # Alternative port
+        "https://yourdomain.com"  # Production domain (update this)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =========================================================
 # CORE PROCESSING FUNCTION
 # =========================================================
 def process_video(video_path: str):
@@ -137,7 +153,7 @@ def _run_batch(batch_imgs, batch_rgbs, batch_sizes, rgba_frames, preview_frames)
         preview_frames.append(preview)
 
 # =========================================================
-# API ENDPOINT
+# API ENDPOINTS
 # =========================================================
 @app.post("/remove-background")
 async def remove_background(video: UploadFile = File(...)):
@@ -152,8 +168,11 @@ async def remove_background(video: UploadFile = File(...)):
 
     rgba_frames, preview_frames, fps = process_video(input_path)
 
-    rgba_out = os.path.join(OUTPUT_DIR, f"{video_id}_rgba.webm")
-    preview_out = os.path.join(OUTPUT_DIR, f"{video_id}_preview.mp4")
+    preview_filename = f"{video_id}_preview.mp4"
+    rgba_filename = f"{video_id}_rgba.webm"
+
+    rgba_out = os.path.join(OUTPUT_DIR, rgba_filename)
+    preview_out = os.path.join(OUTPUT_DIR, preview_filename)
 
     ImageSequenceClip(rgba_frames, fps=fps).write_videofile(
         rgba_out, codec="libvpx", audio=False
@@ -164,15 +183,34 @@ async def remove_background(video: UploadFile = File(...)):
     )
 
     return {
-        "preview_video": preview_out,
-        "rgba_video": rgba_out
+        "video_id": video_id,
+        "preview_video": f"/download/{preview_filename}",
+        "rgba_video": f"/download/{rgba_filename}",
+        "fps": fps
     }
 
-# =========================================================
-# DOWNLOAD ENDPOINTS
-# =========================================================
-@app.get("/download")
-def download(path: str):
+
+@app.get("/download/{filename}")
+def download(filename: str):
+    """Download processed video files"""
+    # Security: only allow files from OUTPUT_DIR
+    path = os.path.join(OUTPUT_DIR, filename)
+    
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="File not found")
+    
+    # Security: prevent path traversal
+    if not os.path.abspath(path).startswith(os.path.abspath(OUTPUT_DIR)):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     return FileResponse(path)
+
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "device": device,
+        "model_loaded": True
+    }
