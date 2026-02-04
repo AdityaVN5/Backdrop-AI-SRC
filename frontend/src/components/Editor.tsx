@@ -76,26 +76,168 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!processedResult) return;
     
-    // Choose the best format for download. 
-    // If background is transparent, we want either the RGBA webm or the original processed file
-    // If background is colored/image, we might technically want to compose it on the client or backend,
-    // but for now, let's download the processed video.
-    // The user request didn't specify client-side composition for download, so downloading the transparent video is the safest bet.
-    
-    // Using the /download endpoint via the URL provided by backend
-    const downloadUrl = api.getDownloadUrl(processedResult.preview_video); // Or rgba_video? Usually preview is MP4 (no alpha often), rgba is WebM.
-    // Let's offer the RGBA one for best quality/transparency support if available
-    const finalUrl = api.getDownloadUrl(processedResult.rgba_video);
+    // For transparent/original, just download/open directly
+    if (mode === BackgroundMode.TRANSPARENT || mode === BackgroundMode.ORIGINAL) {
+         const finalUrl = api.getDownloadUrl(processedResult.rgba_video);
+         window.open(finalUrl, '_blank');
+         return;
+    }
 
-    const link = document.createElement('a');
-    link.href = finalUrl;
-    link.download = `processed_${file.name.split('.')[0]}.webm`; // WebM for transparency
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Client-side Compositing for other modes
+    setState(s => ({ ...s, isProcessing: true, progress: 0 }));
+
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const tempVideo = document.createElement('video');
+        
+        // Fetch video as blob first to avoid ngrok warning pages and ensure valid video data
+        const videoUrl = api.getDownloadUrl(processedResult.rgba_video);
+        
+        // Use fetch to bypass potential ngrok interstitial
+        const videoResponse = await fetch(videoUrl, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true',
+            }
+        });
+
+        if (!videoResponse.ok) {
+            throw new Error(`Failed to fetch video file: ${videoResponse.status} ${videoResponse.statusText}`);
+        }
+
+        const videoBlob = await videoResponse.blob();
+        const videoObjectUrl = URL.createObjectURL(videoBlob);
+
+        tempVideo.crossOrigin = "anonymous";
+        tempVideo.src = videoObjectUrl;
+        
+        await new Promise((resolve, reject) => {
+            tempVideo.onloadedmetadata = () => {
+                canvas.width = tempVideo.videoWidth;
+                canvas.height = tempVideo.videoHeight;
+                resolve(null);
+            };
+            tempVideo.onerror = (e) => {
+                console.error("Video load error details:", tempVideo.error);
+                reject(new Error(`Failed to load source video: ${tempVideo.error?.message || 'Unknown error'}`));
+            };
+        });
+
+        const stream = canvas.captureStream(30); // 30 FPS
+        
+        // Check for supported mime types
+        const mimeTypes = [
+            'video/webm; codecs=vp9', 
+            'video/webm; codecs=vp8', 
+            'video/webm', 
+            'video/mp4'
+        ];
+        
+        let selectedMimeType = '';
+        for (const type of mimeTypes) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                selectedMimeType = type;
+                break;
+            }
+        }
+        
+        if (!selectedMimeType) {
+            throw new Error("No supported video mime type found for MediaRecorder");
+        }
+
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
+        const chunks: Blob[] = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: selectedMimeType.split(';')[0] });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            setState(s => ({ ...s, isProcessing: false, progress: 100 }));
+        };
+
+        // Prepare background resources
+        let bgImg: HTMLImageElement | null = null;
+        if (mode === BackgroundMode.IMAGE && customBg) {
+             bgImg = new Image();
+             bgImg.crossOrigin = "anonymous";
+             bgImg.src = customBg;
+             await new Promise((resolve, reject) => {
+                 bgImg!.onload = resolve;
+                 bgImg!.onerror = () => reject(new Error("Failed to load background image"));
+             });
+        }
+
+        mediaRecorder.start();
+        tempVideo.play().catch(e => {
+            console.error("Play error:", e);
+            throw new Error("Failed to start video playback");
+        });
+
+        // Drawing Loop
+        const drawFrame = () => {
+            if (tempVideo.paused || tempVideo.ended) return;
+
+            // Draw Background
+            if (ctx) {
+                // Clear first
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (mode === BackgroundMode.GREEN_SCREEN) {
+                    ctx.fillStyle = '#00FF00';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else if (mode === BackgroundMode.COLOR) {
+                    ctx.fillStyle = solidColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else if (mode === BackgroundMode.IMAGE && bgImg) {
+                    // Cover style
+                    try {
+                        const ratio = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+                        const centerShift_x = (canvas.width - bgImg.width * ratio) / 2;
+                        const centerShift_y = (canvas.height - bgImg.height * ratio) / 2;
+                        ctx.drawImage(bgImg, 0, 0, bgImg.width, bgImg.height, centerShift_x, centerShift_y, bgImg.width * ratio, bgImg.height * ratio);
+                    } catch (err) {
+                        console.warn("Error drawing bg image", err);
+                    }
+                }
+                
+                // Draw Video Frame
+                try {
+                    ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+                } catch (err) {
+                     // Sometimes happens if video not ready
+                     console.warn("Error drawing video frame", err);
+                }
+            }
+            
+            // Calculate progress based on video time
+            const progress = (tempVideo.currentTime / tempVideo.duration) * 100;
+            setState(s => ({ ...s, progress }));
+
+            if (!tempVideo.ended && !tempVideo.paused) {
+                requestAnimationFrame(drawFrame);
+            }
+        };
+
+        tempVideo.onplay = () => drawFrame();
+        
+        tempVideo.onended = () => {
+            if (mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        };
+
+    } catch (e: any) {
+        console.error("Composition detailed error:", e);
+        alert(`Failed to export video: ${e.message || 'Unknown error'}. Check console for details.`);
+        setState(s => ({ ...s, isProcessing: false }));
+    }
   };
 
   const handleCustomBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
