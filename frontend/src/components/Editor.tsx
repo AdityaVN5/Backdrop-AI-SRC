@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BackgroundMode, ProcessingState, VideoMetadata } from '../types';
+import { api, RemoveBackgroundResponse } from '../lib/api';
 import { Icons } from './Icons';
 import { Button } from './Button';
 
@@ -13,6 +14,7 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
   const [mode, setMode] = useState<BackgroundMode>(BackgroundMode.TRANSPARENT);
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [solidColor, setSolidColor] = useState<string>('#000000');
+  const [processedResult, setProcessedResult] = useState<RemoveBackgroundResponse | null>(null);
   const [state, setState] = useState<ProcessingState>({
     isUploading: true,
     isProcessing: false,
@@ -27,43 +29,65 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
 
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 5;
-      if (progress >= 100) {
-        clearInterval(interval);
-        setState(s => ({ ...s, isUploading: false, progress: 0 }));
-        simulateProcessing();
-      } else {
-        setState(s => ({ ...s, progress }));
-      }
-    }, 100);
+    // Initial upload simulation (could be removed if we want instant feedback, but keeps UI consistent)
+    setState(s => ({ ...s, isUploading: true, progress: 10 }));
+    
+    processFile();
 
     return () => {
       URL.revokeObjectURL(url);
-      clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
-  const simulateProcessing = () => {
-    setState(s => ({ ...s, isProcessing: true, progress: 0 }));
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 2;
-      if (progress >= 100) {
-        clearInterval(interval);
-        setState(s => ({ ...s, isProcessing: false, isComplete: true, progress: 100 }));
-      } else {
-        setState(s => ({ ...s, progress }));
-      }
-    }, 50);
+  const processFile = async () => {
+    try {
+        setState(s => ({ ...s, isProcessing: true, isUploading: false, progress: 20 }));
+        
+        // Call the API
+        const result = await api.removeBackground(file);
+        
+        // Update state with result
+        setProcessedResult(result);
+        
+        // Set the video URL to the processed video so it shows with transparency
+        // We use the RGBA video for the editor preview as it has the alpha channel
+        setVideoUrl(api.getDownloadUrl(result.rgba_video));
+        
+        setState(s => ({ 
+            ...s, 
+            isProcessing: false, 
+            isComplete: true, 
+            progress: 100 
+        }));
+    } catch (err: any) {
+        console.error("Processing failed:", err);
+        setState(s => ({ 
+            ...s, 
+            isProcessing: false, 
+            isUploading: false,
+            error: err.message || 'Failed to process video' 
+        }));
+    }
   };
 
   const handleDownload = () => {
+    if (!processedResult) return;
+    
+    // Choose the best format for download. 
+    // If background is transparent, we want either the RGBA webm or the original processed file
+    // If background is colored/image, we might technically want to compose it on the client or backend,
+    // but for now, let's download the processed video.
+    // The user request didn't specify client-side composition for download, so downloading the transparent video is the safest bet.
+    
+    // Using the /download endpoint via the URL provided by backend
+    const downloadUrl = api.getDownloadUrl(processedResult.preview_video); // Or rgba_video? Usually preview is MP4 (no alpha often), rgba is WebM.
+    // Let's offer the RGBA one for best quality/transparency support if available
+    const finalUrl = api.getDownloadUrl(processedResult.rgba_video);
+
     const link = document.createElement('a');
-    link.href = videoUrl;
-    link.download = `processed_${file.name}`;
+    link.href = finalUrl;
+    link.download = `processed_${file.name.split('.')[0]}.webm`; // WebM for transparency
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
