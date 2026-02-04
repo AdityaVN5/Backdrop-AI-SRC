@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icons } from './Icons';
+import Link from 'next/link';
 import { Button } from './Button';
 
 export const Header: React.FC = () => {
@@ -8,21 +8,24 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-6 h-20 relative flex items-center justify-between">
         
         {/* Logo */}
-        <div className="flex items-center space-x-1 z-10">
+        <Link href="/" className="flex items-center space-x-1 z-10 hover:opacity-80 transition-opacity">
            <span className="font-bold text-2xl tracking-tighter text-black">backdrop ai</span>
-        </div>
+        </Link>
         
         {/* Nav */}
         <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center space-x-8">
-          {['Research', 'Product'].map((item) => (
-            <a 
-              key={item} 
-              href="#" 
-              className="text-[11px] font-bold uppercase tracking-widest text-backdrop-textSecondary hover:text-black transition-colors"
-            >
-              {item}
-            </a>
-          ))}
+          <Link 
+            href="/research" 
+            className="text-[11px] font-bold uppercase tracking-widest text-backdrop-textSecondary hover:text-black transition-colors"
+          >
+            Research
+          </Link>
+          <Link 
+            href="/" 
+            className="text-[11px] font-bold uppercase tracking-widest text-backdrop-textSecondary hover:text-black transition-colors"
+          >
+            Product
+          </Link>
         </nav>
 
         {/* Credits / Auth */}
