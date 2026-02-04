@@ -37,7 +37,7 @@ export default function ProductPage() {
               Professional Video Background Removal
             </h1>
             <p className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto mb-10 leading-relaxed">
-              Remove backgrounds, replace green screens, and create stunning video compositions—all powered by AI. No subscriptions, no watermarks, just results.
+              Remove backgrounds, replace green screens, and create stunning video compositions, all powered by AI. No subscriptions, no watermarks, just results.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="primary" className="h-14 px-10 text-base font-bold uppercase tracking-widest" onClick={handleTryNow}>
