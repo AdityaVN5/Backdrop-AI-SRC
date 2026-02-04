@@ -47,9 +47,19 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
     try {
         setState(s => ({ ...s, isProcessing: true, isUploading: false, progress: 20 }));
         
+        // Simulate progress while waiting
+        const progressInterval = setInterval(() => {
+          setState(s => {
+            if (s.progress >= 90) return s;
+            return { ...s, progress: s.progress + (Math.random() * 5) };
+          });
+        }, 800);
+
         // Call the API
         const result = await api.removeBackground(file);
         
+        clearInterval(progressInterval);
+
         // Update state with result
         setProcessedResult(result);
         

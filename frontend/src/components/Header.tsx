@@ -8,9 +8,9 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-6 h-20 relative flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-1 z-10 hover:opacity-80 transition-opacity">
+        <button onClick={() => window.location.href = '/'} className="flex items-center space-x-1 z-10 hover:opacity-80 transition-opacity">
            <span className="font-bold text-2xl tracking-tighter text-black">backdrop ai</span>
-        </Link>
+        </button>
         
         {/* Nav */}
         <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center space-x-8">
