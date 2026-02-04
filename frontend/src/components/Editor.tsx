@@ -10,7 +10,9 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
-  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [sourceVideoUrl, setSourceVideoUrl] = useState<string>('');
+  const [processedVideoUrl, setProcessedVideoUrl] = useState<string>('');
+  const [isBuffering, setIsBuffering] = useState<boolean>(false);
   const [mode, setMode] = useState<BackgroundMode>(BackgroundMode.TRANSPARENT);
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [solidColor, setSolidColor] = useState<string>('#000000');
@@ -27,7 +29,8 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
-    setVideoUrl(url);
+    setSourceVideoUrl(url);
+    setProcessedVideoUrl(''); // Reset processed URL on new file
 
     // Initial upload simulation (could be removed if we want instant feedback, but keeps UI consistent)
     setState(s => ({ ...s, isUploading: true, progress: 10 }));
@@ -52,7 +55,9 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
         
         // Set the video URL to the processed video so it shows with transparency
         // We use the RGBA video for the editor preview as it has the alpha channel
-        setVideoUrl(api.getDownloadUrl(result.rgba_video));
+        const processedUrl = api.getDownloadUrl(result.rgba_video);
+        setProcessedVideoUrl(processedUrl);
+        setMode(BackgroundMode.TRANSPARENT); // Switch to transparent mode to show result
         
         setState(s => ({ 
             ...s, 
@@ -282,20 +287,33 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
             style={renderBackgroundPreview()}
             />
 
-            {videoUrl && (
+            {/* Video Player */}
+            {(sourceVideoUrl || processedVideoUrl) && (
                 <video 
                     ref={videoRef}
-                    src={videoUrl} 
-                    className={`relative z-10 block max-h-[70vh] w-auto ${mode === BackgroundMode.BLUR ? 'blur-md' : ''}`}
+                    key={mode === BackgroundMode.ORIGINAL ? sourceVideoUrl : processedVideoUrl || sourceVideoUrl} // Force re-render on source change
+                    src={mode === BackgroundMode.ORIGINAL ? sourceVideoUrl : (processedVideoUrl || sourceVideoUrl)} 
+                    className={`relative z-10 block max-h-[70vh] w-auto ${mode === BackgroundMode.BLUR ? 'blur-md' : ''} ${isBuffering ? 'opacity-50' : 'opacity-100'} transition-opacity duration-300`}
                     controls
                     playsInline
                     loop
                     autoPlay
+                    onLoadStart={() => setIsBuffering(true)}
+                    onWaiting={() => setIsBuffering(true)}
+                    onCanPlay={() => setIsBuffering(false)}
+                    onLoadedData={() => setIsBuffering(false)}
                 />
+            )}
+
+            {/* Buffering Indicator */}
+            {isBuffering && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent shadow-lg"></div>
+                </div>
             )}
         </div>
         
-        {state.isComplete && (
+        {state.isComplete && !isBuffering && (
             <div className="absolute top-6 right-6 z-20 bg-black/80 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center backdrop-blur-md">
                 <Icons.Check className="w-3 h-3 mr-2" />
                 AI Processing Complete
