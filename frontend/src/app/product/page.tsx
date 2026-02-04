@@ -5,18 +5,15 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
 import { 
   CheckCircle2, 
-  Zap, 
   ShieldCheck, 
   Layers, 
   Play, 
-  Download, 
   Settings, 
   Users, 
   GraduationCap, 
   Briefcase, 
   Gamepad2, 
   Search, 
-  Cpu, 
   Smartphone,
   ChevronRight,
   Plus
@@ -82,19 +79,13 @@ export default function ProductPage() {
           {/* Features Grid */}
           <section className="mb-32">
             <h2 className="text-4xl font-bold tracking-tight mb-16 text-center">Engineered for Precision</h2>
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               {[
                 {
                   title: "Precise AI Segmentation",
                   desc: "Our BiRefNet-powered engine detects subjects with exceptional accuracy, handling complex hair, transparent objects, and motion blur.",
                   icon: Layers,
                   list: ["Complex hair and fur", "Transparent objects", "Motion blur", "Varying lighting"]
-                },
-                {
-                  title: "Real-Time Processing",
-                  desc: "No waiting hours for results. Our optimized pipeline processes videos up to 2.5x faster than real-time on modern GPUs.",
-                  icon: Zap,
-                  list: ["30s clips in ~15s", "1m videos in ~30s", "5m videos in ~2.5m", "CUDA acceleration"]
                 }
               ].map((feature, i) => (
                 <div key={i} className="p-10 border border-gray-100 rounded-[2rem] hover:border-black transition-all hover:shadow-xl group bg-white">
@@ -161,107 +152,22 @@ export default function ProductPage() {
              </div>
           </section>
 
-          {/* Pricing */}
-          <section className="mb-32 max-w-6xl mx-auto">
-             <h2 className="text-4xl font-bold tracking-tight mb-16 text-center">Simple Pricing</h2>
-             <div className="grid md:grid-cols-3 gap-8">
-                {/* Free Tier */}
-                <div className="p-10 border border-gray-200 rounded-[2.5rem] relative bg-white">
-                  <div className="mb-8">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Free</h4>
-                    <div className="text-4xl font-black">$0<span className="text-base font-normal text-gray-400">/mo</span></div>
-                  </div>
-                  <ul className="space-y-4 mb-10">
-                    {["5 videos per day", "10 minute limit", "1080p resolution", "All background modes"].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                        <CheckCircle2 className="w-4 h-4 text-black" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant="secondary" className="w-full h-12 rounded-2xl" onClick={handleTryNow}>Get Started</Button>
-                </div>
 
-                {/* Pro Tier (Featured) */}
-                <div className="p-10 bg-black text-white rounded-[2.5rem] relative transform md:-translate-y-4 shadow-2xl">
-                  <div className="absolute top-0 right-10 -mt-3 transform translate-y-0.5 bg-white text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-tighter">Coming Soon</div>
-                  <div className="mb-8">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">Pro</h4>
-                    <div className="text-4xl font-black">$12<span className="text-base font-normal text-gray-500">/mo</span></div>
-                  </div>
-                  <ul className="space-y-4 mb-10">
-                    {["Unlimited videos", "30 minute limit", "4K resolution support", "Priority processing", "Batch upload", "API access"].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm text-gray-400">
-                        <CheckCircle2 className="w-4 h-4 text-white" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant="white" className="w-full h-12 rounded-2xl">Join Waiting List</Button>
-                </div>
-
-                {/* Self-Hosted */}
-                <div className="p-10 border border-gray-200 rounded-[2.5rem] bg-white">
-                  <div className="mb-8">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Open Source</h4>
-                    <div className="text-4xl font-black">Free<span className="text-base font-normal text-gray-400">/forever</span></div>
-                  </div>
-                  <ul className="space-y-4 mb-10">
-                    {["Self-host anywhere", "No usage limits", "Full customization", "Commercial use", "GPU acceleration"].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                        <CheckCircle2 className="w-4 h-4 text-black" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant="secondary" className="w-full h-12 rounded-2xl" onClick={() => window.open('https://github.com/AdityaVN5/Backdrop-AI-SRC', '_blank')}>View GitHub</Button>
-                </div>
+          {/* Integrations */}
+          <section className="mb-32 max-w-xl mx-auto text-center">
+             <h3 className="text-2xl font-bold mb-8 flex items-center justify-center gap-3">
+                <Smartphone className="w-6 h-6" />
+                Integrations
+             </h3>
+             <div className="flex flex-wrap justify-center gap-2">
+                 {["Premiere Pro", "After Effects", "DaVinci Resolve", "Final Cut Pro", "OBS Studio", "YouTube", "TikTok", "Instagram"].map((tag, i) => (
+                   <span key={i} className="px-4 py-2 bg-gray-50 border border-gray-100 rounded-full text-xs font-medium text-gray-500">{tag}</span>
+                 ))}
              </div>
-          </section>
-
-          {/* Technical Specs & Comparisons */}
-          <section className="mb-32 max-w-4xl mx-auto">
-             <div className="grid md:grid-cols-2 gap-16">
-                <div>
-                   <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                      <Cpu className="w-6 h-6" />
-                      System Requirements
-                   </h3>
-                   <div className="space-y-6">
-                      <div>
-                         <h5 className="text-xs font-bold uppercase tracking-widest mb-3 text-gray-400">Recommended</h5>
-                         <ul className="text-sm space-y-2 text-gray-600">
-                            <li>NVIDIA RTX 3060 or better</li>
-                            <li>8-core processor</li>
-                            <li>16GB RAM</li>
-                         </ul>
-                      </div>
-                      <div>
-                         <h5 className="text-xs font-bold uppercase tracking-widest mb-3 text-gray-400">Minimum</h5>
-                         <ul className="text-sm space-y-2 text-gray-600">
-                            <li>NVIDIA GTX 1060 (6GB VRAM)</li>
-                            <li>4-core processor</li>
-                            <li>8GB RAM</li>
-                         </ul>
-                      </div>
-                   </div>
-                </div>
-                <div>
-                   <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                      <Smartphone className="w-6 h-6" />
-                      Integrations
-                   </h3>
-                   <div className="flex flex-wrap gap-2">
-                       {["Premiere Pro", "After Effects", "DaVinci Resolve", "Final Cut Pro", "OBS Studio", "YouTube", "TikTok", "Instagram"].map((tag, i) => (
-                         <span key={i} className="px-4 py-2 bg-gray-50 border border-gray-100 rounded-full text-xs font-medium text-gray-500">{tag}</span>
-                       ))}
-                   </div>
-                   <div className="mt-8">
-                      <p className="text-sm text-gray-500 leading-relaxed italic">
-                        "Export directly to any major video editor with lossless alpha channel support."
-                      </p>
-                   </div>
-                </div>
+             <div className="mt-8">
+                <p className="text-sm text-gray-500 leading-relaxed italic">
+                  "Export directly to any major video editor with lossless alpha channel support."
+                </p>
              </div>
           </section>
 
