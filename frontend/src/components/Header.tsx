@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
             Research
           </Link>
           <Link 
-            href="/" 
+            href="/product" 
             className="text-[11px] font-bold uppercase tracking-widest text-backdrop-textSecondary hover:text-black transition-colors"
           >
             Product
