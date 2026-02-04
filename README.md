@@ -65,7 +65,7 @@ The BiRefNet model demonstrates strong performance on video data despite being t
 
 ## Architecture Overview
 
-<img src="diagrams\arch_diagram.png" alt="Architecture Diagram" width="400">
+<img src="diagrams\arch_diagram.png" alt="Architecture Diagram" width="400" >
 
 
 ## Technical Challenges
