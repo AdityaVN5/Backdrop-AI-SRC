@@ -24,6 +24,10 @@ export default function ProductPage() {
     window.location.href = '/';
   };
 
+  const handleWatchDemo = () => {
+    window.open('https://drive.google.com/file/d/179cPbOR6wIf4sscsOP_GtdWjSzavqeAY/view?usp=drive_link', '_blank');
+  };
+
   return (
     <div className="min-h-screen flex flex-col font-sans text-backdrop-text bg-white selection:bg-black selection:text-white">
       <Header />
@@ -43,7 +47,7 @@ export default function ProductPage() {
               <Button variant="primary" className="h-14 px-10 text-base font-bold uppercase tracking-widest" onClick={handleTryNow}>
                 Try It Free
               </Button>
-              <Button variant="secondary" className="h-14 px-10 text-base font-bold uppercase tracking-widest flex items-center gap-2">
+              <Button variant="secondary" className="h-14 px-10 text-base font-bold uppercase tracking-widest flex items-center gap-2" onClick={handleWatchDemo}>
                 <Play className="w-4 h-4 fill-current" />
                 Watch Demo
               </Button>
