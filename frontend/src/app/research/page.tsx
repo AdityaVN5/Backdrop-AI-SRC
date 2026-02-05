@@ -119,54 +119,39 @@ export default function ResearchPage() {
 
           {/* Results Section */}
           <section className="mb-20">
-            <div className="grid md:grid-cols-2 gap-12">
-              <div>
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <Cpu className="w-6 h-6" />
-                  Performance Summary
-                </h3>
-                <div className="bg-gray-50 p-6 rounded-2xl font-mono text-sm border border-gray-100">
-                  <p className="font-bold mb-2">Performance Summary for Demo Video:</p>
-                  <div className="text-gray-600 whitespace-pre">
-{`========= PERFORMANCE SUMMARY =========
-total_frames: 118
-total_time_sec: 8.558
-effective_fps: 13.79
-single_frame_inference_ms: 57.021
-gpu_vram_peak_MB: 1619.87
-temporal_coherence_score(lower_better): 2.15
-resolution_inference: 512
-batch_size: 4
-device: cuda
-=======================================`}
-                  </div>
-                </div>
+            <h2 className="text-3xl font-bold tracking-tight mb-8 flex items-center gap-3">
+              <Cpu className="w-8 h-8" />
+              Performance Summary
+            </h2>
+            
+            <div className="bg-gray-50 rounded-3xl p-8 md:p-12 border border-gray-100">
+              <div className="mb-8">
+                <h3 className="text-lg font-bold text-gray-400 uppercase tracking-widest mb-2">Demo Video Benchmark</h3>
+                <p className="text-gray-600">Comprehensive inference metrics for our primary evaluation sequence.</p>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <RefreshCw className="w-6 h-6" />
-                  Quality Metrics
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { label: "mIoU (Mean IoU)", value: "0.89", color: "bg-black" },
-                    { label: "Boundary F-measure", value: "0.92", color: "bg-black" },
-                    { label: "Temporal Coherence", value: "High", color: "bg-gray-400" },
-                  ].map((metric, i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 font-medium">{metric.label}</span>
-                        <span className="font-bold">{metric.value}</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${metric.color}`} 
-                          style={{ width: typeof metric.value === 'string' && metric.value.includes('.') ? `${parseFloat(metric.value) * 100}%` : '100%' }}
-                        />
-                      </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[
+                  { label: "Total Frames", value: "118" },
+                  { label: "Total Time", value: "8.558s" },
+                  { label: "Effective FPS", value: "13.79" },
+                  { label: "Inference/Frame", value: "57.02ms" },
+                  { label: "Peak VRAM", value: "1,619 MB" },
+                  { label: "Coherence Score", value: "2.15", sub: "lower is better" },
+                  { label: "Resolution", value: "512px" },
+                  { label: "Batch Size", value: "4" },
+                  { label: "Device", value: "CUDA", highlight: true },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                      <p className={`text-2xl font-bold tracking-tight ${stat.highlight ? 'text-black' : 'text-gray-800'}`}>
+                        {stat.value}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    {stat.sub && <p className="text-[10px] text-gray-400 mt-2 italic">{stat.sub}</p>}
+                  </div>
+                ))}
               </div>
             </div>
           </section>
