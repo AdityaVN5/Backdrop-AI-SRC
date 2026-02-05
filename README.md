@@ -12,6 +12,7 @@ AI-powered video background removal tool implementing [BiRefNet](https://github.
 ## Core Technology
 
 ### Backend Architecture
+
 - **Model**: BiRefNet (Bilateral Reference Network) for salient object segmentation
 - **Framework**: FastAPI with async processing pipeline
 - **Inference**: PyTorch + CUDA acceleration (half-precision)
@@ -19,12 +20,14 @@ AI-powered video background removal tool implementing [BiRefNet](https://github.
 - **Output**: WebM (VP9) with alpha channel + MP4 preview
 
 ### Frontend Stack
+
 - **Framework**: Next.js 16 with React 19
 - **Type Safety**: TypeScript with strict mode
 - **Styling**: Tailwind CSS v4 (PostCSS)
 - **State Management**: React hooks for upload/processing flow
 
 ### Model Implementation
+
 ```python
 # BiRefNet inference pipeline
 - Resolution: 512x512 (optimized for speed)
@@ -36,11 +39,13 @@ AI-powered video background removal tool implementing [BiRefNet](https://github.
 ## Quick Start
 
 ### Prerequisites
+
 - Python 3.8+
 - Node.js 18+
 - CUDA-compatible GPU (recommended)
 
 ### Backend Setup
+
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -48,15 +53,29 @@ python app.py
 ```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+## Application Screenshots
+
+<p align="center">
+  <img src="screenshots/vlcsnap-2026-02-06-00h05m38s591.png" width="45%" />
+  <img src="screenshots/vlcsnap-2026-02-06-00h06m24s709.png" width="45%" />
+</p>
+<p align="center">
+  <img src="screenshots/vlcsnap-2026-02-06-00h06m40s217.png" width="30%" />
+  <img src="screenshots/vlcsnap-2026-02-06-00h06m45s938.png" width="30%" />
+  <img src="screenshots/vlcsnap-2026-02-06-00h06m57s153.png" width="30%" />
+</p>
+
 ## Research Notes
 
 This implementation focuses on:
+
 1. **Real-time inference** through batched frame processing
 2. **Memory optimization** via half-precision and efficient tensor ops
 3. **Practical deployment** balancing accuracy vs. speed (512px resolution)
@@ -65,8 +84,7 @@ The BiRefNet model demonstrates strong performance on video data despite being t
 
 ## Architecture Overview
 
-<img src="diagrams\arch_diagram.png" alt="Architecture Diagram" width="400" >
-
+<img src="screenshots\arch_diagram.png" alt="Architecture Diagram" width="400" >
 
 ## Technical Challenges
 
