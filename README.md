@@ -9,6 +9,8 @@
 
 AI-powered video background removal tool implementing [BiRefNet](https://github.com/ZhengPeng7/BiRefNet) for precise semantic segmentation. This project explores real-time video compositing with transparent backgrounds, green screen replacement, and custom backdrop rendering.
 
+[![Watch Demo](https://img.shields.io/badge/🎥-Watch_Demo-black?style=for-the-badge)](https://drive.google.com/file/d/1jzBkBHyNem_tf2x5ujGLKCavZ89ZFg8p/view?usp=sharing)
+
 ## Core Technology
 
 ### Backend Architecture
