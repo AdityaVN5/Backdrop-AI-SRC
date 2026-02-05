@@ -9,6 +9,16 @@ export interface RemoveBackgroundResponse {
 
 export const api = {
   removeBackground: async (file: File): Promise<RemoveBackgroundResponse> => {
+    // Check local storage for request limit
+    const STORAGE_KEY = 'backdrop_requests_count';
+    const MAX_FREE_REQUESTS = 5;
+    
+    const currentCount = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+    
+    if (currentCount >= MAX_FREE_REQUESTS) {
+      throw new Error(`Free request limit reached (${MAX_FREE_REQUESTS}/${MAX_FREE_REQUESTS}). Please upgrade or check back later.`);
+    }
+
     const formData = new FormData();
     formData.append('video', file);
 
@@ -22,6 +32,9 @@ export const api = {
       const errorText = await response.text();
       throw new Error(`Failed to process video: ${response.status} ${response.statusText} - ${errorText}`);
     }
+
+    // Increment request count on success
+    localStorage.setItem(STORAGE_KEY, (currentCount + 1).toString());
 
     return response.json();
   },

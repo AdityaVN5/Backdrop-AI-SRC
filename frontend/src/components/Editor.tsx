@@ -392,6 +392,15 @@ export const Editor: React.FC<EditorProps> = ({ file, onReset }) => {
           </div>
 
           <div className="mt-auto pt-6 space-y-3">
+             {state.error && (
+               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-2 animate-in fade-in slide-in-from-top-1">
+                 <div className="flex items-start text-red-800 text-xs">
+                   <Icons.Video className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
+                   <p className="font-medium leading-relaxed">{state.error}</p>
+                 </div>
+               </div>
+             )}
+
              <Button 
                 variant="primary" 
                 className="w-full"
