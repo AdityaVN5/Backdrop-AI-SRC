@@ -123,20 +123,23 @@ export default function ResearchPage() {
               <div>
                 <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
                   <Cpu className="w-6 h-6" />
-                  Technical Results
+                  Performance Summary
                 </h3>
-                <div className="space-y-4">
-                  {[
-                    { label: "Single Frame Inference", value: "~45ms (RTX 3090)" },
-                    { label: "Effective Frame Rate", value: "30ms/frame (Batch)" },
-                    { label: "1080p Processing", value: "~2.5x real-time" },
-                    { label: "VRAM Usage", value: "3.2GB at 512px" },
-                  ].map((stat, i) => (
-                    <div key={i} className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-500">{stat.label}</span>
-                      <span className="font-bold text-black">{stat.value}</span>
-                    </div>
-                  ))}
+                <div className="bg-gray-50 p-6 rounded-2xl font-mono text-sm border border-gray-100">
+                  <p className="font-bold mb-2">Performance Summary for Demo Video:</p>
+                  <div className="text-gray-600 whitespace-pre">
+{`========= PERFORMANCE SUMMARY =========
+total_frames: 118
+total_time_sec: 8.558
+effective_fps: 13.79
+single_frame_inference_ms: 57.021
+gpu_vram_peak_MB: 1619.87
+temporal_coherence_score(lower_better): 2.15
+resolution_inference: 512
+batch_size: 4
+device: cuda
+=======================================`}
+                  </div>
                 </div>
               </div>
               <div>
